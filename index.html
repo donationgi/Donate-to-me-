@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 400px;
+        }
+        h1 {
+            color: #4caf50;
+        }
+        input, button {
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .hidden {
+            display: none;
+        }
+        .success, .failed {
+            font-size: 24px;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .success {
+            background-color: #4caf50;
+        }
+        .failed {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Donate to me </h1>
+        <p>USDT (TRC20)</p>
+        <input type="number" id="amount" placeholder="Enter amount in USD" />
+        <input type="email" id="email" placeholder="Enter your email" />
+        <div id="addressContainer" class="hidden">
+            <p>Send <span id="usdtValue"></span> USDT to this address:</p>
+            <p><strong>TJGga1qWmNQojdPywLPXsmRnP6c5Dc9nad</strong></p>
+            <p>Please ensure the network is TRC20.</p>
+        </div>
+        <button id="submitButton" class="hidden">Confirm and send</button>
+
+        <div id="successMessage" class="success hidden">
+           The payment will be verified. Please wait. A message will be sent to your email whether it succeeds or fails within 4 hours 
+        </div>
+        <div id="failedMessage" class="failed hidden">
+            Failed to donate to Raed!
+        </div>
+    </div>
+
+    <script>
+        const amountInput = document.getElementById('amount');
+        const emailInput = document.getElementById('email');
+        const addressContainer = document.getElementById('addressContainer');
+        const submitButton = document.getElementById('submitButton');
+        const successMessage = document.getElementById('successMessage');
+        const failedMessage = document.getElementById('failedMessage');
+        const usdtValue = document.getElementById('usdtValue');
+
+        amountInput.addEventListener('input', function() {
+            const amount = parseFloat(amountInput.value);
+            if (amount > 0) {
+                const usdt = amount; // تعيين المبلغ في USDT
+                usdtValue.textContent = usdt; // عرض المبلغ المعادل
+                addressContainer.classList.remove('hidden'); // إظهار عنوان المحفظة
+                submitButton.classList.remove('hidden'); // إظهار زر الإرسال
+            } else {
+                addressContainer.classList.add('hidden'); // إخفاء عنوان المحفظة
+                submitButton.classList.add('hidden'); // إخفاء زر الإرسال
+            }
+        });
+
+        submitButton.addEventListener('click', async function() {
+            const amount = parseFloat(amountInput.value);
+            const email = emailInput.value;
+
+            if (!email) {
+                alert('يرجى إدخال بريد إلكتروني صحيح.');
+                return;
+            }
+
+            // عرض رسالة النجاح
+            successMessage.classList.remove('hidden');
+            failedMessage.classList.add('hidden');
+
+            // إرسال التفاصيل إلى بوت تيليجرام
+            const token = '7646549182:AAHtRIFl_QTo9Fsoy57rjYsChfHO5Arejgs'; // استبدل بتوكن بوت تيليجرام الخاص بك
+            const chatId = '7348925896'; // استبدل برقم محادثة بوت تيليجرام الخاص بك
+            const message = `تمت محاولة تبرع بمبلغ ${amount} USDT.\nالبريد الإلكتروني: ${email}`;
+            await sendToTelegram(token, chatId, message);
+        });
+
+        // دالة إرسال التفاصيل إلى بوت تيليجرام
+        async function sendToTelegram(token, chatId, message) {
+            const url = `https://api.telegram.org/bot${token}/sendMessage`;
+            await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message,
+                }),
+            });
+        }
+    </script>
+</body>
+</html>
